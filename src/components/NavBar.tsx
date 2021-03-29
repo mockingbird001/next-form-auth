@@ -1,10 +1,11 @@
-import React, { useContext } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import styled from 'styled-components'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { useContext } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import styled from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { AuthContext } from '../context/AuthContextProvider'
+import { AuthContext } from "../context/AuthContextProvider";
+import { isAdmin } from "../helpers/authHelpers";
 
 interface Props {}
 
@@ -15,7 +16,7 @@ const Header = styled.header`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const Nav = styled.nav`
   width: 85%;
@@ -26,7 +27,7 @@ const Nav = styled.nav`
   @media ${(props) => props.theme.size.md} {
     width: 90%;
   }
-`
+`;
 
 const Logo = styled.div`
   width: 20%;
@@ -47,7 +48,7 @@ const Logo = styled.div`
     display: flex;
     justify-content: flex-start;
   }
-`
+`;
 
 const Ul = styled.ul`
   width: 62%;
@@ -75,7 +76,7 @@ const Ul = styled.ul`
       text-decoration: underline;
     }
   }
-`
+`;
 
 const Actions = styled.div`
   width: 18%;
@@ -94,7 +95,7 @@ const Actions = styled.div`
   @media ${(props) => props.theme.size.sm} {
     display: none;
   }
-`
+`;
 
 const HamMenu = styled.div`
   display: none;
@@ -102,54 +103,70 @@ const HamMenu = styled.div`
   @media ${(props) => props.theme.size.sm} {
     display: block;
   }
-`
+`;
 
 const NavBar: React.FC<Props> = () => {
-  const { handleAuthAction } = useContext(AuthContext)
+  const { handleAuthAction, loggedInUser, setAuthUser } = useContext(
+    AuthContext
+  );
 
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <Header>
       <Nav>
-        <Link href='/'>
+        <Link href="/">
           <Logo>
-            <a className={router.pathname === '/' ? 'active' : ''}>MyShop</a>
+            <a className={router.pathname === "/" ? "active" : ""}>MyShop</a>
           </Logo>
         </Link>
         <Ul>
-          <Link href='/'>
-            <a className={router.pathname === '/' ? 'active' : ''}>Home</a>
+          <Link href="/">
+            <a className={router.pathname === "/" ? "active" : ""}>Home</a>
           </Link>
 
-          <Link href='/products'>
-            <a className={router.pathname === '/products' ? 'active' : ''}>
+          <Link href="/products">
+            <a className={router.pathname === "/products" ? "active" : ""}>
               Products
             </a>
           </Link>
 
-          <Link href='/dashboard'>
-            <a className={router.pathname === '/dashboard' ? 'active' : ''}>
-              Dashboard
-            </a>
-          </Link>
+          {loggedInUser && (
+            <Link href="/dashboard">
+              <a className={router.pathname === "/dashboard" ? "active" : ""}>
+                Dashboard
+              </a>
+            </Link>
+          )}
 
-          <Link href='/admin'>
-            <a className={router.pathname === '/admin' ? 'active' : ''}>
-              Admin
-            </a>
-          </Link>
+          {loggedInUser && isAdmin(loggedInUser) && (
+            <Link href="/admin">
+              <a className={router.pathname === "/admin" ? "active" : ""}>
+                Admin
+              </a>
+            </Link>
+          )}
         </Ul>
         <Actions>
-          <button onClick={() => handleAuthAction('signin')}>Sign In</button>
-          <button onClick={() => handleAuthAction('signup')}>Sign Up</button>
+          {loggedInUser ? (
+            <button onClick={() => setAuthUser(null)}>Sign Out</button>
+          ) : (
+            <>
+              <button onClick={() => handleAuthAction("signin")}>
+                Sign In
+              </button>
+              <button onClick={() => handleAuthAction("signup")}>
+                Sign Up
+              </button>
+            </>
+          )}
         </Actions>
         <HamMenu>
-          <FontAwesomeIcon icon={['fas', 'bars']} size='2x' />
+          <FontAwesomeIcon icon={["fas", "bars"]} size="2x" />
         </HamMenu>
       </Nav>
     </Header>
-  )
-}
+  );
+};
 
-export default NavBar
+export default NavBar;
