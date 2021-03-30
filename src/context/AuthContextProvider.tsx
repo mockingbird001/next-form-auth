@@ -1,5 +1,7 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { User } from "../types";
+import { useQuery } from "@apollo/client";
+import { ME } from "../apollo/queries";
 
 interface Props {}
 
@@ -26,6 +28,12 @@ export const AuthContext = createContext<AuthContextValues>(initialState);
 const AuthContextProvider: React.FC<Props> = ({ children }) => {
   const [authAction, setAuthAction] = useState<Actions>("close");
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+
+  const { data } = useQuery<{ me: User }>(ME);
+
+  useEffect(() => {
+    if (data?.me) setLoggedInUser(data.me);
+  }, [data?.me]);
 
   const handleAuthAction: HandleAuthAction = (action) => {
     setAuthAction(action);
