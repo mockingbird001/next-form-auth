@@ -1,24 +1,24 @@
-import React, { useContext } from 'react'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import styled, { createGlobalStyle, ThemeProvider } from 'styled-components'
-import { config, dom } from '@fortawesome/fontawesome-svg-core'
+import React, { useContext, useEffect } from "react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
+import { config, dom } from "@fortawesome/fontawesome-svg-core";
 
-import '../fontAwesome'
+import "../fontAwesome";
 
-import { theme } from '../theme'
-import NavBar from './NavBar'
-import { AuthContext } from '../context/AuthContextProvider'
-import Backdrop from './modal/Backdrop'
-import SignUp from './SignUp'
-import SignIn from './SignIn'
-import RequestResetPassword from './RequestResetPassword'
-import ResetPassword from './ResetPassword'
+import { theme } from "../theme";
+import NavBar from "./NavBar";
+import { AuthContext } from "../context/AuthContextProvider";
+import Backdrop from "./modal/Backdrop";
+import SignUp from "./SignUp";
+import SignIn from "./SignIn";
+import RequestResetPassword from "./RequestResetPassword";
+import ResetPassword from "./ResetPassword";
 
-config.autoAddCss = false
+config.autoAddCss = false;
 
 interface Props {
-  title?: string
+  title?: string;
 }
 
 const GlobalStyle = createGlobalStyle`
@@ -54,12 +54,12 @@ const GlobalStyle = createGlobalStyle`
         background: ${(props) => props.theme.colors.lightGrey};
     }
    }
-`
+`;
 
 const StyledPage = styled.div`
   background: white;
   color: ${(props) => props.theme.fontColors.primary};
-`
+`;
 
 const DisplayedPage = styled.div`
   width: 80%;
@@ -67,12 +67,16 @@ const DisplayedPage = styled.div`
   padding: 2rem;
   display: flex;
   justify-content: center;
-`
+`;
 
 const Layout: React.FC<Props> = ({ children }) => {
-  const { authAction } = useContext(AuthContext)
+  const { authAction, handleAuthAction } = useContext(AuthContext);
 
-  const { pathname } = useRouter()
+  const { pathname, query } = useRouter();
+
+  useEffect(() => {
+    if (query?.resetToken) handleAuthAction("reset");
+  }, [query]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -81,16 +85,16 @@ const Layout: React.FC<Props> = ({ children }) => {
         <StyledPage>
           <Head>
             <title>
-              {pathname === '/' ? 'HOME' : pathname.split('/')[1].toUpperCase()}
+              {pathname === "/" ? "HOME" : pathname.split("/")[1].toUpperCase()}
             </title>
-            <meta charSet='utf-8' />
+            <meta charSet="utf-8" />
             <meta
-              name='viewport'
-              content='initial-scale=1.0, width=device-width'
+              name="viewport"
+              content="initial-scale=1.0, width=device-width"
             />
             <link
-              href='https://fonts.googleapis.com/css2?family=Noto+Sans&family=Roboto&display=swap'
-              rel='stylesheet'
+              href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Roboto&display=swap"
+              rel="stylesheet"
             />
           </Head>
 
@@ -99,30 +103,30 @@ const Layout: React.FC<Props> = ({ children }) => {
           <DisplayedPage>
             <>{children}</>
             <>
-              {authAction !== 'close' && (
+              {authAction !== "close" && (
                 <>
-                  {authAction === 'signup' && (
+                  {authAction === "signup" && (
                     <>
                       <Backdrop />
                       <SignUp />
                     </>
                   )}
-                  {authAction === 'signin' && (
+                  {authAction === "signin" && (
                     <>
                       <Backdrop />
                       <SignIn />
                     </>
                   )}
-                  {authAction === 'request' && (
+                  {authAction === "request" && (
                     <>
                       <Backdrop />
                       <RequestResetPassword />
                     </>
                   )}
-                  {authAction === 'reset' && (
+                  {authAction === "reset" && (
                     <>
                       <Backdrop />
-                      <ResetPassword />
+                      <ResetPassword token={query?.resetToken as string} />
                     </>
                   )}
                 </>
@@ -132,6 +136,6 @@ const Layout: React.FC<Props> = ({ children }) => {
         </StyledPage>
       </>
     </ThemeProvider>
-  )
-}
-export default Layout
+  );
+};
+export default Layout;

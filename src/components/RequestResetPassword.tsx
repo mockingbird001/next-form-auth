@@ -2,7 +2,6 @@ import React from "react";
 import { useMutation } from "@apollo/client";
 import { useForm, ErrorMessage } from "react-hook-form";
 import Loader from "react-loader-spinner";
-
 import Modal from "./modal/Modal";
 import {
   FormContainer,
@@ -36,6 +35,7 @@ const RequestResetPassword: React.FC<Props> = () => {
         <Header>
           <h4>Enter your email below to reset password.</h4>
         </Header>
+
         <StyledForm onSubmit={handleRequestResetPassword}>
           <InputContainer>
             <Input
@@ -52,10 +52,12 @@ const RequestResetPassword: React.FC<Props> = () => {
                 },
               })}
             />
+
             <ErrorMessage errors={errors} name="email">
               {({ message }) => <StyledError>{message}</StyledError>}
             </ErrorMessage>
           </InputContainer>
+
           <Button
             disabled={loading}
             style={{ cursor: loading ? "not-allowed" : "pointer" }}
@@ -72,12 +74,14 @@ const RequestResetPassword: React.FC<Props> = () => {
               "Submit"
             )}
           </Button>
+
           {error && (
             <StyledError>
               {error.graphQLErrors[0]?.message || "Sorry, something went wrong"}
             </StyledError>
           )}
         </StyledForm>
+
         {data && (
           <StyledInform>
             <p>{data.requestResetPassword?.message}</p>
