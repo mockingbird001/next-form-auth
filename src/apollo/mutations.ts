@@ -50,7 +50,7 @@ export const RESET_PASSWORD = gql`
 
 export const UPDATE_ROLES = gql`
   mutation UPDATE_ROLES($userId: String!, $newRoles: [String!]!) {
-    updateRoles(userId: $userId, newRoles: $newRolse) {
+    updateRoles(userId: $userId, newRoles: $newRoles) {
       id
       username
       email
