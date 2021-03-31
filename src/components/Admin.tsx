@@ -1,12 +1,15 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from "react";
+import styled from "styled-components";
+import { useQuery } from "@apollo/client";
 
-import AdminRow from './AdminRow'
-import { users } from '../helpers/data'
+import AdminRow from "./AdminRow";
+import { QUERY_USERS } from "../apollo/queries";
+import { User } from "../types";
+import Loader from "react-loader-spinner";
 
 const Div = styled.div`
   width: 100%;
-`
+`;
 
 const Table = styled.table`
   width: 100%;
@@ -20,25 +23,25 @@ const Table = styled.table`
   th {
     border: 1px solid ${(props) => props.theme.colors.lightGrey};
     margin: 0;
-   font-weight: 800;
+    font-weight: 800;
   }
 
   td {
-   border: 1px solid ${(props) => props.theme.colors.lightGrey};
+    border: 1px solid ${(props) => props.theme.colors.lightGrey};
     margin: 0;
     padding: 0.5rem;
-   font-weight: 400;
-   text-align: center;
+    font-weight: 400;
+    text-align: center;
 
-   .true {
+    .true {
       color: ${(props) => props.theme.colors.teal};
-   }
+    }
 
-   .false {
+    .false {
       color: red;
-   }
+    }
 
-   .role_action {
+    .role_action {
       margin: 0;
       padding: 0;
       display: flex;
@@ -53,31 +56,39 @@ const Table = styled.table`
   }
 
   .td_role {
-     background: ${(props) => props.theme.colors.lighterGrey};
+    background: ${(props) => props.theme.colors.lighterGrey};
   }
-`
+`;
 
 const Admin: React.FC = () => {
-  return (
+  const { data, loading, error } = useQuery<{ users: User[] }>(QUERY_USERS, {
+    fetchPolicy: "network-only",
+  });
+
+  return loading ? (
+    <Loader type="Oval" color="teal" width={50} height={50} timeout={30000} />
+  ) : error ? (
+    <p>Sorry, something went wrong</p>
+  ) : (
     <Div>
       <h3>Permission Management</h3>
       <Table>
         <thead>
           <tr>
             {/* Header */}
-            <th rowSpan={2} style={{ width: '25%' }}>
+            <th rowSpan={2} style={{ width: "25%" }}>
               Name
             </th>
-            <th rowSpan={2} style={{ width: '20%' }}>
+            <th rowSpan={2} style={{ width: "20%" }}>
               Email
             </th>
-            <th rowSpan={2} style={{ width: '15%' }}>
+            <th rowSpan={2} style={{ width: "15%" }}>
               Created At
             </th>
-            <th colSpan={4} style={{ width: '25%' }}>
+            <th colSpan={4} style={{ width: "25%" }}>
               Role
             </th>
-            <th rowSpan={2} style={{ width: '10%' }}>
+            <th rowSpan={2} style={{ width: "10%" }}>
               Edit Roles
             </th>
           </tr>
@@ -91,13 +102,12 @@ const Admin: React.FC = () => {
         </thead>
 
         <tbody>
-          {users.map((user) => (
-            <AdminRow user={user} key={user.id} />
-          ))}
+          {data &&
+            data.users.map((user) => <AdminRow user={user} key={user.id} />)}
         </tbody>
       </Table>
     </Div>
-  )
-}
+  );
+};
 
-export default Admin
+export default Admin;

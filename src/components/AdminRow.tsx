@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useMutation } from "@apollo/client";
+import Loader from "react-loader-spinner";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { User } from "../types";
+import { Role, User } from "../types";
 import { isSuperAdmin } from "../helpers/authHelpers";
+import { UPDATE_ROLES } from "../apollo/mutations";
 
 interface Props {
   user: User;
@@ -20,6 +23,7 @@ const DeleteBtn = styled.button`
 const AdminRow: React.FC<Props> = ({ user }) => {
   const { roles } = user;
   const initialState = {
+    CLIENT: roles.includes("CLIENT"),
     ITEMEDITOR: roles.includes("ITEMEDITOR"),
     ADMIN: roles.includes("ADMIN"),
   };
@@ -27,7 +31,32 @@ const AdminRow: React.FC<Props> = ({ user }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [roleState, setRoleState] = useState(initialState);
 
-  console.log(roleState);
+  const [updateRoles, { loading, error }] = useMutation<
+    { updateRoles: User },
+    { userId: string; newRoles: Role[] }
+  >(UPDATE_ROLES);
+
+  useEffect(() => {
+    if (error)
+      alert(error.graphQLErrors[0]?.message || "Sorry, something went wrong");
+  }, [error]);
+
+  const handleSubmmitUpdateRoles = async (userId: string) => {
+    try {
+      const newRoles: Role[] = [];
+      Object.entries(roleState).forEach(([key, value]) =>
+        value ? newRoles.push(key as Role) : null
+      );
+      const response = await updateRoles({ variables: { userId, newRoles } });
+
+      if (response.data?.updateRoles) {
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <tr key={user.id}>
       {/* Name */}
@@ -148,11 +177,19 @@ const AdminRow: React.FC<Props> = ({ user }) => {
                 size="lg"
               />
             </button>
-            <button>
+            <button onClick={() => handleSubmmitUpdateRoles(user.id)}>
               <FontAwesomeIcon icon={["fas", "check"]} color="teal" size="lg" />
             </button>
           </p>
         </td>
+      ) : loading ? (
+        <Loader
+          type="Oval"
+          color="teal"
+          width={30}
+          height={30}
+          timeout={30000}
+        />
       ) : (
         <td>
           <button onClick={() => setIsEditing(true)}>Edit</button>
