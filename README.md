@@ -4,6 +4,7 @@ JWT Authentication application using Next.js, GraphQL in Typescript
 
 - Login
 - Signup
+- Signout
 - Reset Password
 - Admin
 
